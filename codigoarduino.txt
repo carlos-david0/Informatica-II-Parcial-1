@@ -7,6 +7,22 @@ int relojC = 3;
 int latchC = 4;
 int dataC = 2;
 
+void verificacion(unsigned short int tiempo, unsigned short int iteraciones) {
+  for (unsigned short int i = 0; i < iteraciones; i++){
+	digitalWrite(latchC, LOW);
+    shiftOut(dataC, relojC, LSBFIRST, 0); 
+    digitalWrite(latchC, HIGH);
+    digitalWrite(latchF, LOW);
+    shiftOut(dataF, relojF, LSBFIRST, 255);
+    digitalWrite(latchF, HIGH);
+    delay(tiempo*1000);
+    digitalWrite(latchF, LOW);
+    shiftOut(dataF, relojF, LSBFIRST, 0);
+    digitalWrite(latchF, HIGH);
+    delay(tiempo*1000);
+  }
+}
+
 void setup() {
   Serial.begin(9600);
   pinMode(latchC, OUTPUT);

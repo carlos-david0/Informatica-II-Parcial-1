@@ -1,9 +1,22 @@
-void setup() {
-  // put your setup code here, to run once:
+//defino pines para el 74hc595 de las filas(1)
+int relojF = 7;
+int latchF = 5;
+int dataF = 6;
+//defino pines para el 74hc595 de las columnas(0)
+int relojC = 3;
+int latchC = 4;
+int dataC = 2;
 
+void setup() {
+  Serial.begin(9600);
+  pinMode(latchC, OUTPUT);
+  pinMode(relojC, OUTPUT);
+  pinMode(dataC, OUTPUT);
+  pinMode(latchF, OUTPUT);
+  pinMode(relojF, OUTPUT);
+  pinMode(dataF, OUTPUT);
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
 
 }

@@ -24,16 +24,12 @@ void verificacion(unsigned short int tiempo, unsigned short int iteraciones) {
 }
 
 //Funciones que generan las matrices de los patrones,retornan la dirección de memoria
-
-//PATRON 1
 bool** patron_1()
 {
-    //creo matriz de memoria dinámica
     bool** patron_1= new bool*[8];
     for(short j=0;j<8;j++){
         patron_1[j]= new bool[8];
     }
-    //creo patron sobre la matriz
     short lim_superior=4, lim_inferior=3;
     while(lim_superior<8){
         for (short i=0;i<4;i++){
@@ -54,77 +50,68 @@ bool** patron_1()
     return patron_1;
 }
 
-//PATRON 2
-
 bool** patron_2()
 {
-    //creo matriz de memoria dinámica
     bool** patron_2= new bool*[8];
     for(short j=0;j<8;j++){
         patron_2[j]= new bool[8];
     }
-    //creo patron sobre la matriz
     for(short i=0;i<4;i++){
         for(short j=7;j>=4;j--){
             patron_2[i][i]=1;
 	    patron_2[7-i][i]=1;
-            if(j+i==7)
+          if(j+i==7){
                 patron_2[i][j]=1;
 		patron_2[7-i][j]=1;
-            else
+          }
+          else{
                 patron_2[i][j]=0;
 		patron_2[7-i][j]=0;
+          }
         }
     }
     return patron_2;
 }
-//Patron 3 
+
 bool** patron_3()
 {
-    //creo matriz de memoria dinámica inicializada en 0
-    bool** patron_4= new bool*[8];
+    bool** patron_3= new bool*[8];
     for(short i=0;i<4;i++){
-        patron_4[i]= new bool[8];
+        patron_3[i]= new bool[8];
         for (short j=0;j<8; j++) {
-            patron_4[i][j]= 0; 
-        }
-        
-    //creo patron sobre la matriz
+            patron_3[i][j]= 0; 
+        }    
     for(short i=0;i<3;i+=2){
         for(short j=i/2;j<8;j+=3){
             patron_3[i][j]=1;
             patron_3[i+1][j]=1;
-	    patron_3[i+4][j]=1;
+	    	patron_3[i+4][j]=1;
             patron_3[i+5][j]=1;
             if(j!=7){
                 patron_3[i][j+1]=1;
                 patron_3[i+1][j+1]=1;
 		patron_3[i+4][j+1]=1;
                 patron_3[i+5][j+1]=1;
-            }
-        }
+            	}
+        	}
+    	}
     }
-    return patron_3
+    return patron_3;
 }
 
-
-//Patron 4
-bool** patron_4()
-{
-    //creo matriz de memoria dinámica inicializada en 0
+bool** patron_4(){
     bool** patron_4= new bool*[8];
     for(short i=0;i<8;i++){
         patron_4[i]= new bool[8];
         for (short j=0;j<8; j++) {
             patron_4[i][j]= 0; 
     }
-        
-    //creo patron sobre la matriz
     for(short i=0;i<4;i++){
         for(short j=i;j<i+4;j++){
             patron_4[i][j]=1;
 	    patron_4[7-i][j]=1;
-        }
+        	}
+    	}
     }
     return patron_4;
 }

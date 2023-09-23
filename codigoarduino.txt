@@ -25,24 +25,46 @@ void verificacion(unsigned short int tiempo, unsigned short int iteraciones) {
 
 //Funciones que generan las matrices de los patrones,retornan la dirección de memoria
 
-//PATRON 1
-bool** patron_1()
+#include <stdlib.h>
+
+bool** crear_matriz(short filas, short columnas);
+void liberar_memoria(bool** apuntador_matriz,short filas,short columnas);
+bool** patron_1(short filas, short columnas);
+bool** patron_2(short filas, short columnas);
+bool** patron_3(short filas, short columnas);
+bool** patron_4(short filas, short columnas);
+
+
+bool** crear_matriz(short filas, short columnas)
 {
-    //creo matriz de memoria dinámica
-    bool** patron_1= new bool*[4];
-    for(short j=0;j<4;j++){
-        patron_1[j]= new bool[8];
+    bool** matriz= new bool*[filas/2];
+    for(short i=0;i<filas;i++){
+        matriz[i]= new bool[columnas];
     }
+    return matriz;
+}
+
+void liberar_memoria(bool** apuntador_matriz,short filas,short columnas){
+    for(short i=0;i<filas;i++){
+        delete[] apuntador_matriz[i];
+    }
+    delete[] apuntador_matriz;
+}
+
+//PATRON 1
+bool** patron_1(short filas, short columnas)
+{
+    bool** patron_1=crear_matriz(filas/2,columnas);
     //creo patron sobre la matriz
-    short lim_superior=4, lim_inferior=3;
-    while(lim_superior<8){
-        for (short i=0;i<4;i++){
-            for(short j=0;j<8;j++){
+    short lim_superior=columnas/2, lim_inferior=lim_superior-1; //matriz 8*8 serian 4 y 3
+    while(lim_superior<columnas){
+        for (short i=0;i<filas/2;i++){
+            for(short j=0;j<columnas;j++){
                 if(j<=lim_superior && j>=lim_inferior){
-                    patron_1[i][j]=1;
+                    *(*(patron_1+i)+j)=1;
                 }
                 else{
-                    patron_1[i][j]=0;
+                    *(*(patron_1+i)+j)=0;
                 }
             }
             lim_inferior--;
@@ -53,67 +75,46 @@ bool** patron_1()
 }
 
 //PATRON 2
-
-bool** patron_2()
+bool** patron_2(short filas, short columnas)
 {
-    //creo matriz de memoria dinámica
-    bool** patron_2= new bool*[4];
-    for(short j=0;j<4;j++){
-        patron_2[j]= new bool[8];
-    }
+    bool** patron_2=crear_matriz(filas/2,columnas);
     //creo patron sobre la matriz
-    for(short i=0;i<4;i++){
-        for(short j=7;j>=4;j--){
-            patron_2[i][i]=1;
-            if(j+i==7)
-                patron_2[i][j]=1;
-            else
-                patron_2[i][j]=0;
+    for(short i=0;i<filas/2;i++){
+        for(short j=columnas-1;j>=columnas/2;j--){ //columnas-1 representa el valor máximo que se puede recorrer en las columnas
+            *(*(patron_2+i)+i)=1;
+            if(j+i==columnas-1)
+                *(*(patron_2+i)+j)=1;
         }
     }
     return patron_2;
 }
-//Patron 3 
-bool** patron_3()
+
+
+//PATRON 3
+bool** patron_3(short filas, short columnas)
 {
-    //creo matriz de memoria dinámica inicializada en 0
-    bool** patron_4= new bool*[4];
-    for(short i=0;i<4;i++){
-        patron_4[i]= new bool[8];
-        for (short j=0;j<8; j++) {
-            patron_4[i][j]= 0; 
-        }
-        
+    bool** patron_3=crear_matriz((filas/2)-1, columnas);
     //creo patron sobre la matriz
-    for(short i=0;i<3;i+=2){
-        for(short j=i/2;j<8;j+=3){
-            patron_3[i][j]=1;
-            patron_3[i+1][j]=1;
+    for(short i=0;i<(filas/2)-1;i++){
+        for(short j=i/2;j<columnas;j+=3){
+            *(*(patron_3+i)+j)=1;
             if(j!=7){
-                patron_3[i][j+1]=1;
-                patron_3[i+1][j+1]=1;
+                *(*(patron_3+i)+(j+1))=1;
             }
         }
     }
-    return patron_3
+    return patron_3;
 }
 
 
-//Patron 4
-bool** patron_4()
+//PATRON 4
+bool** patron_4(short filas, short columnas)
 {
-    //creo matriz de memoria dinámica inicializada en 0
-    bool** patron_4= new bool*[4];
-    for(short i=0;i<4;i++){
-        patron_4[i]= new bool[8];
-        for (short j=0;j<8; j++) {
-            patron_4[i][j]= 0; 
-    }
-        
+    bool** patron_4=crear_matriz(filas/2,columnas);
     //creo patron sobre la matriz
-    for(short i=0;i<4;i++){
-        for(short j=i;j<i+4;j++){
-            patron_4[i][j]=1;
+    for(short i=0;i<filas/2;i++){
+        for(short j=i;j<i+(columnas/2);j++){
+            *(*(patron_4+i)+j)=1;
         }
     }
     return patron_4;

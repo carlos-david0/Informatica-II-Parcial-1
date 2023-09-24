@@ -32,7 +32,6 @@ void verificar(int tiempo, int iteraciones){
     delay(tiempo * 1000);
   }
 }
-
 bool** crear_matriz(short filas, short columnas)
 {
     bool** matriz= new bool*[filas];
@@ -50,6 +49,7 @@ void liberar_memoria(bool** apuntador_matriz,short filas,short columnas){
     }
     delete[] apuntador_matriz;
 }
+
 bool** patron_1(short filas, short columnas){
     bool** patron_1=crear_matriz(filas,columnas);
     short lim_superior=columnas/2, lim_inferior=lim_superior-1; //matriz 8*8 serian 4 y 3
@@ -67,22 +67,18 @@ bool** patron_1(short filas, short columnas){
             lim_superior++;
         }
     }
-  for (short i = filas / 2; i < filas; i++)
-    {
-        for (short j = 0; j < columnas; j++)
-        {
+  for (short i = filas / 2; i < filas; i++){
+        for (short j = 0; j < columnas; j++){
             *(*(patron_1 + i) + j) = *(*(patron_1 + filas - 1 - i) + j);
         }
     }
-  
 for (int i = 0; i < 4; i++) {//patron residual
     patron_1[i][3 - i] = 0;
     patron_1[i][4 + i] = 0;
 }
     return patron_1;
 }
-bool** patron_2(short filas, short columnas)
-{
+bool** patron_2(short filas, short columnas){
     bool** patron_2=crear_matriz(filas,columnas);
     for(short i=0;i<filas/2;i++){
         for(short j=columnas-1;j>=columnas/2;j--){ //columnas-1 representa el valor máximo que se puede recorrer en las columnas
@@ -98,8 +94,7 @@ bool** patron_2(short filas, short columnas)
     }//es imposible eliminar el patron residual
     return patron_2;
 }
-bool** patron_3(short filas, short columnas)
-{
+bool** patron_3(short filas, short columnas){
     bool** patron_3=crear_matriz(filas, columnas);
     for(short i=0;i<filas/2;i++){
         for(short j=i/2;j<columnas;j+=3){

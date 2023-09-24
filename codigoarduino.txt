@@ -1,131 +1,239 @@
-//defino pines para el 74hc595 de las filas(1)
-int relojF = 7;
-int latchF = 5;
-int dataF = 6;
-//defino pines para el 74hc595 de las columnas(0)
-int relojC = 3;
-int latchC = 4;
-int dataC = 2;
+short int datac = 2;
+short int relojc = 3;
+short int latchc = 4;
+short int dataf = 5;
+short int relojf = 6;
+short int latchf = 7;
 
-void verificacion(unsigned short int tiempo, unsigned short int iteraciones) {
-  for (unsigned short int i = 0; i < iteraciones; i++){
-	digitalWrite(latchC, LOW);
-    shiftOut(dataC, relojC, LSBFIRST, 0); 
-    digitalWrite(latchC, HIGH);
-    digitalWrite(latchF, LOW);
-    shiftOut(dataF, relojF, LSBFIRST, 255);
-    digitalWrite(latchF, HIGH);
-    delay(tiempo*1000);
-    digitalWrite(latchF, LOW);
-    shiftOut(dataF, relojF, LSBFIRST, 0);
-    digitalWrite(latchF, HIGH);
-    delay(tiempo*1000);
+void setup(){
+  Serial.begin(9600);
+  pinMode(datac, OUTPUT);
+  pinMode(relojc, OUTPUT);
+  pinMode(latchc, OUTPUT);
+  pinMode(dataf, OUTPUT);
+  pinMode(relojf, OUTPUT);
+  pinMode(latchf, OUTPUT);
+}
+
+void registros(int fila, int columna){
+  	shiftOut(dataf, relojf, LSBFIRST, fila);
+    shiftOut(datac, relojc, MSBFIRST, columna);
+    digitalWrite(latchc, HIGH);
+  	digitalWrite(latchf, HIGH);
+  	digitalWrite(latchc, LOW);
+  	digitalWrite(latchf, LOW);
+}
+
+void verificar(int tiempo, int iteraciones){
+  for (short int i = 0; i < iteraciones; i++){
+  	registros(255,0);
+    delay(tiempo * 1000);
+    registros(0,0);
+    delay(tiempo * 1000);
   }
 }
 
-//Funciones que generan las matrices de los patrones,retornan la dirección de memoria
-bool** patron_1()
+bool** crear_matriz(short filas, short columnas)
 {
-    bool** patron_1= new bool*[8];
-    for(short j=0;j<8;j++){
-        patron_1[j]= new bool[8];
+    bool** matriz= new bool*[filas];
+    for(short i=0;i<filas;i++){
+        matriz[i]= new bool[columnas]; //para cada filas se inicializan las columnas
+        for(short j=0;j<columnas;j++){ //se crea una matriz de 8*8 nula
+            matriz[i][j]=0;
+        }
     }
-    short lim_superior=4, lim_inferior=3;
-    while(lim_superior<8){
-        for (short i=0;i<4;i++){
-            for(short j=0;j<8;j++){
+    return matriz;
+}
+void liberar_memoria(bool** apuntador_matriz,short filas,short columnas){
+    for(short i=0;i<filas;i++){
+        delete[] apuntador_matriz[i];
+    }
+    delete[] apuntador_matriz;
+}
+bool** patron_1(short filas, short columnas){
+    bool** patron_1=crear_matriz(filas,columnas);
+    short lim_superior=columnas/2, lim_inferior=lim_superior-1; //matriz 8*8 serian 4 y 3
+    while(lim_superior<columnas){
+        for (short i=0;i<filas/2;i++){
+            for(short j=0;j<columnas;j++){
                 if(j<=lim_superior && j>=lim_inferior){
-                    patron_1[i][j]=1;
-		    patron_1[7-i][j]=1;
+                    *(*(patron_1+i)+j)=1;
                 }
                 else{
-                    patron_1[i][j]=0;
-		    patron_1[7-i][j]=0;
+                    *(*(patron_1+i)+j)=0;
                 }
             }
             lim_inferior--;
             lim_superior++;
         }
     }
-    return patron_1;
-}
-
-bool** patron_2()
-{
-    bool** patron_2= new bool*[8];
-    for(short j=0;j<8;j++){
-        patron_2[j]= new bool[8];
-    }
-    for(short i=0;i<4;i++){
-        for(short j=7;j>=4;j--){
-            patron_2[i][i]=1;
-	    patron_2[7-i][i]=1;
-          if(j+i==7){
-                patron_2[i][j]=1;
-		patron_2[7-i][j]=1;
-          }
-          else{
-                patron_2[i][j]=0;
-		patron_2[7-i][j]=0;
-          }
+  for (short i = filas / 2; i < filas; i++)
+    {
+        for (short j = 0; j < columnas; j++)
+        {
+            *(*(patron_1 + i) + j) = *(*(patron_1 + filas - 1 - i) + j);
         }
     }
+  
+for (int i = 0; i < 4; i++) {//patron residual
+    patron_1[i][3 - i] = 0;
+    patron_1[i][4 + i] = 0;
+}
+    return patron_1;
+}
+bool** patron_2(short filas, short columnas)
+{
+    bool** patron_2=crear_matriz(filas,columnas);
+    for(short i=0;i<filas/2;i++){
+        for(short j=columnas-1;j>=columnas/2;j--){ //columnas-1 representa el valor máximo que se puede recorrer en las columnas
+            *(*(patron_2+i)+i)=1;
+            if(j+i==columnas-1)
+                *(*(patron_2+i)+j)=1;
+        }
+    }
+  for (short i = filas / 2; i < filas; i++){
+        for (short j = 0; j < columnas; j++){
+            *(*(patron_2 + i) + j) = *(*(patron_2 + filas - 1 - i) + j);
+        }
+    }//es imposible eliminar el patron residual
     return patron_2;
 }
-
-bool** patron_3()
+bool** patron_3(short filas, short columnas)
 {
-    bool** patron_3= new bool*[8];
-    for(short i=0;i<4;i++){
-        patron_3[i]= new bool[8];
-        for (short j=0;j<8; j++) {
-            patron_3[i][j]= 0; 
-        }    
-    for(short i=0;i<3;i+=2){
-        for(short j=i/2;j<8;j+=3){
-            patron_3[i][j]=1;
-            patron_3[i+1][j]=1;
-	    	patron_3[i+4][j]=1;
-            patron_3[i+5][j]=1;
+    bool** patron_3=crear_matriz(filas, columnas);
+    for(short i=0;i<filas/2;i++){
+        for(short j=i/2;j<columnas;j+=3){
+            *(*(patron_3+i)+j)=1;
             if(j!=7){
-                patron_3[i][j+1]=1;
-                patron_3[i+1][j+1]=1;
-		patron_3[i+4][j+1]=1;
-                patron_3[i+5][j+1]=1;
-            	}
-        	}
-    	}
+                *(*(patron_3+i)+(j+1))=1;
+            }
+        }
     }
+  for (short i = filas / 2; i < filas; i++) {
+        for (short j = 0; j < columnas; j++) {
+            *(*(patron_3 + i) + j) = *(*(patron_3 + i - filas / 2) + j);
+        }
+    }
+  patron_3[2][2] = 0;//patron residual
+  patron_3[2][5] = 0;
+  patron_3[4][0] = 0;
+  patron_3[4][3] = 0;
+  patron_3[4][6] = 0;
+  patron_3[6][2] = 0;
+  patron_3[6][5] = 0;
     return patron_3;
 }
-
-bool** patron_4(){
-    bool** patron_4= new bool*[8];
-    for(short i=0;i<8;i++){
-        patron_4[i]= new bool[8];
-        for (short j=0;j<8; j++) {
-            patron_4[i][j]= 0; 
+bool** patron_4(short filas, short columnas)
+{
+    bool** patron_4=crear_matriz(filas,columnas);
+    for(short i=0;i<filas/2;i++){
+        for(short j=i;j<i+(columnas/2);j++){
+            *(*(patron_4+i)+j)=1;
+        }
     }
-    for(short i=0;i<4;i++){
-        for(short j=i;j<i+4;j++){
-            patron_4[i][j]=1;
-	    patron_4[7-i][j]=1;
-        	}
-    	}
+  	for (short i = filas / 2; i < filas; i++){
+        for (short j = 0; j < columnas; j++){
+            *(*(patron_4 + i) + j) = *(*(patron_4 + filas - 1 - i) + j);
+        }
     }
+  for (int i = 0; i < 4; i++) {//patron residual
+    patron_4[i][3 + i] = 0;
+    patron_4[i + 5][2 - i] = 0;
+}
     return patron_4;
 }
 
-void setup() {
-  Serial.begin(9600);
-  pinMode(latchC, OUTPUT);
-  pinMode(relojC, OUTPUT);
-  pinMode(dataC, OUTPUT);
-  pinMode(latchF, OUTPUT);
-  pinMode(relojF, OUTPUT);
-  pinMode(dataF, OUTPUT);
+int notarray_decimal(bool * boolArray) {
+    int decimal = 0;
+    int Posicion = 7;
+    for (int i = 0; i < 8; i++) {
+        if (boolArray[i]) {
+            decimal += (1 << Posicion);
+        }
+        Posicion--;
+    }
+    return 255 - decimal;
+  }
+void imagen (bool ** patron, int tiempo){
+  const unsigned short int iterador[8]={1,2,4,8,16,32,64,128};
+  unsigned long inicio = millis();
+  while(millis() <= inicio + tiempo * 1000){
+    for (short int i = 0; i < 8; i++){
+      registros(iterador[i], notarray_decimal(patron[i]));
+    }
+  }
+  registros(0,0);
 }
 
-void loop() {
-
+void publik(){
+char opcion;
+int tiempo;
+Serial.print("1. Verificar funcionamiento de LEDs.\n2. Mostrar imagen de prueba. \n3. Mostrar de forma alternada los patrones.\n");
+while(!Serial.available()){}
+opcion = Serial.read();
+Serial.print("Indique el tiempo en segundos \n");
+while(!Serial.available()){}
+tiempo = Serial.parseInt();
+  switch(opcion){
+    case '1': {
+      int iteraciones;
+      Serial.print("Indique cuantas iteraciones\n");
+  	  while(!Serial.available()){}
+  	  iteraciones = Serial.parseInt();
+      verificar(tiempo, iteraciones);
+    }
+    break;
+    case '2': {
+      Serial.print("1. O.\n2. X. \n3. cuadrados.\n4. >.\n");
+      while(!Serial.available()){}
+	  opcion = Serial.read();
+      switch(opcion){
+        case '1':{
+          bool ** i = patron_1(8,8);
+          imagen(i, tiempo);
+          liberar_memoria(i,8,8);
+        }
+        break;
+        case '2':{
+          bool ** i = patron_2(8,8);
+          imagen(i, tiempo);
+          liberar_memoria(i,8,8);
+        }
+        break;
+        case '3':{
+          bool ** i = patron_3(8,8);
+          imagen(i , tiempo);
+      	  liberar_memoria(i,8,8);
+        }
+        break;
+        case '4':{
+          bool ** i = patron_4(8,8);
+          imagen(i, tiempo);
+          liberar_memoria(i,8,8);
+        }
+        break;
+        default: Serial.print ("eso no es una opcion\n");
+      }
+    }
+    break;
+    case '3':{
+      while (!Serial.available()){
+        bool ** i = patron_1(8,8);
+        imagen(i, tiempo);
+        liberar_memoria(i,8,8);
+        i = patron_2(8,8);
+        imagen(i, tiempo);
+        liberar_memoria(i,8,8);
+        i = patron_3(8,8);
+        imagen(i, tiempo);
+        liberar_memoria(i,8,8);
+        i = patron_4(8,8);
+        imagen(i, tiempo);
+        liberar_memoria(i,8,8);
+      }
+    }
+  }
+}
+void loop(){
+  publik();
 }

@@ -95,7 +95,7 @@ bool** patron_3(short filas, short columnas)
 {
     bool** patron_3=crear_matriz(filas, columnas);
     //creo patron sobre la matriz
-    for(short i=0;i<(filas/2)-1;i++){
+    for(short i=0;i<filas/2;i++){
         for(short j=i/2;j<columnas;j+=3){
             *(*(patron_3+i)+j)=1;
             if(j!=7){
